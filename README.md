@@ -4,4 +4,4 @@
 
 一键执行：
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/loticc/Debian-Ubuntu-Cleanup/main/minimize.sh)
+apt-get update && apt-get install -y curl ca-certificates && bash <(curl -fsSL https://raw.githubusercontent.com/loticc/Debian-Ubuntu-Cleanup/main/minimize.sh)
