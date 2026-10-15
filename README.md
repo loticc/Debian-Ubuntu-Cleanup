@@ -4,4 +4,4 @@
 
 一键执行：
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/你的用户名/仓库名/main/minimize.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/loticc/Debian-Ubuntu-Cleanup/main/minimize.sh)
