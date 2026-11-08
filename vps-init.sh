@@ -47,12 +47,20 @@ setup_logging() {
 }
 
 # ============================================================
-# 阶段 1：系统精简 + 基础工具（降低内存占用核心）
+# 阶段 1：系统精简 + 基础工具 + 安全更新
 # ============================================================
 phase_cleanup() {
-    log "阶段 1/2：系统精简与基础工具安装"
+    log "阶段 1/2：系统精简、基础工具安装与安全更新"
 
     apt update
+
+    # ===== 新增：安全更新（包含 CVE-2026-98432 内核补丁）=====
+    log "执行系统安全更新（含内核）..."
+    apt upgrade -y
+    # 如果想更彻底，可以改成：
+    # apt full-upgrade -y
+    # ========================================================
+
     apt install -y --no-install-recommends \
         curl ca-certificates wget gnupg \
         tasksel openssh-server cron \
@@ -81,6 +89,7 @@ phase_cleanup() {
     echo "  默认启动目标: $(systemctl get-default)"
     echo "  SSH 状态: $(systemctl is-active ssh)"
     echo "  Cron 状态: $(systemctl is-active cron)"
+    echo "  当前内核: $(uname -r)"
 
     if [[ -f /etc/network/interfaces ]] && grep -q "iface" /etc/network/interfaces 2>/dev/null; then
         echo "  网络配置: /etc/network/interfaces (Debian ifupdown)"
@@ -120,9 +129,9 @@ main() {
     setup_logging
 
     echo "=========================================="
-    echo "  VPS 精简与优化脚本"
+    echo "  VPS 精简与优化脚本（已加入安全更新）"
     echo "  支持：Debian 12/13 | Ubuntu 22.04/24.04"
-    echo "  目标：移除图形界面，降低内存占用"
+    echo "  目标：移除图形界面 + 打安全补丁 + 降低内存占用"
     echo "  日志：$LOG_FILE"
     echo "=========================================="
 
@@ -139,12 +148,11 @@ main() {
     echo "  SSH 状态: $(systemctl is-active ssh 2>/dev/null || systemctl is-active sshd 2>/dev/null || echo 'unknown')"
     echo "  Cron 状态: $(systemctl is-active cron)"
     echo "  当前时间: $(date)"
+    echo "  当前内核: $(uname -r)"
     echo ""
     echo "  完整日志：$LOG_FILE"
     echo ""
-    echo "  下一步（可选）："
-    echo "    - 安装 BBR：自行运行对应脚本"
-    echo "    - 修改 SSH 端口：自行运行对应脚本"
+    echo "  注意：如果更新了内核，建议重启后生效（CVE-2026-98432 补丁需要重启）"
     echo ""
 
     read -r -p "是否现在重启？(y/N): " REBOOT_NOW || true
@@ -153,7 +161,7 @@ main() {
         sync
         reboot
     else
-        echo "跳过重启。"
+        echo "跳过重启。请稍后手动重启以让内核更新生效。"
     fi
 }
 
